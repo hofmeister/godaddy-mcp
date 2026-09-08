@@ -52,52 +52,21 @@ Registration is deliberately two-step: `get_registration_quote` returns the pric
 
 ## Installation
 
-The repository is public, so **no tokens are needed to install it** — only the GoDaddy PAT is required later.
-
-### From GitHub directly (recommended, no tokens)
-
-npm can install the repository itself. The package's `prepare` script compiles the server during install, so you get a ready-to-run binary:
+The repository is public, so **no GitHub tokens are needed** — npx clones, builds, and runs the server for you:
 
 ```bash
-mkdir ~/godaddy-mcp && cd ~/godaddy-mcp
-npm init -y
-npm install github:hofmeister/godaddy-mcp#v0.1.0   # pin to a release tag
+npx -y github:hofmeister/godaddy-mcp
 ```
 
-The server entry point is `node_modules/@hofmeister/godaddy-mcp/dist/index.js` — point your MCP client's `command`/`args` at it (see [MCP client configuration](#mcp-client-configuration)). The equivalent long form is `npm install git+https://github.com/hofmeister/godaddy-mcp.git#v0.1.0`, and for a one-off run: `npx github:hofmeister/godaddy-mcp`.
+The first run takes about a minute (clone + `npm install` + build); afterwards npx serves it from its cache (`~/.npm/_npx`) and starts in seconds. `GODADDY_PAT` (see [Setup](#setup)) is the only secret involved.
 
-### From source (for development)
+- **Pin a version:** `npx -y github:hofmeister/godaddy-mcp#v0.1.0` (once release tags exist).
+- **Stale cache:** npx caches git dependencies; if an update doesn't show up, run `npm cache clean --force` or use the pinned tag.
 
-```bash
-git clone https://github.com/hofmeister/godaddy-mcp
-cd godaddy-mcp
-npm install
-npm run build
-```
+### Alternatives
 
-The server entry point is `dist/index.js`.
-
-### From GitHub Packages (published builds)
-
-The package is published to [GitHub Packages](https://github.com/hofmeister/godaddy-mcp/packages) as `@hofmeister/godaddy-mcp`. Create a **read-only** GitHub token at [github.com/settings/tokens](https://github.com/settings/tokens) — classic token with `read:packages`, or a fine-grained token with **Read** access to *Packages* on the `hofmeister` account. It grants nothing beyond reading this one public package.
-
-Tell npm to use the GitHub registry for this scope and authenticate:
-
-```bash
-# ~/.npmrc (or a project .npmrc)
-@hofmeister:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=ghp_your_github_token
-```
-
-Then install it in a folder of its own:
-
-```bash
-mkdir ~/godaddy-mcp && cd ~/godaddy-mcp
-npm init -y
-npm install @hofmeister/godaddy-mcp
-```
-
-The server entry point is `~/godaddy-mcp/node_modules/@hofmeister/godaddy-mcp/dist/index.js`. You can also run it ad hoc with `npx @hofmeister/godaddy-mcp`.
+- **From source** (development): `git clone https://github.com/hofmeister/godaddy-mcp`, then `npm install && npm run build` — the entry point is `dist/index.js`.
+- **GitHub Packages:** after the first release, `@hofmeister/godaddy-mcp` is available on [GitHub Packages](https://github.com/hofmeister/godaddy-mcp/packages). It requires a read-only GitHub token in `.npmrc` (a GitHub-registry requirement, not a repository one), so prefer npx.
 
 ## Setup
 
@@ -116,6 +85,8 @@ If `GODADDY_PAT` is missing, the server still starts; tool calls return a clear 
 
 ### Verify without an MCP client
 
+Both commands run in a [source checkout](#alternatives):
+
 ```bash
 GODADDY_PAT=... npm run smoke   # read-only API smoke test
 npm test                        # unit tests (no network, no credentials needed)
@@ -123,7 +94,7 @@ npm test                        # unit tests (no network, no credentials needed)
 
 ## MCP client configuration
 
-The server speaks MCP over **stdio**. Run it with `node dist/index.js` (or `npm run dev` to run the TypeScript source via tsx).
+The server speaks MCP over **stdio**; each client launches it with `npx -y github:hofmeister/godaddy-mcp`, which handles installing and building automatically. The first launch takes about a minute while npx fetches the repository — that is normal, do not kill the client.
 
 ### Claude Desktop (`claude_desktop_config.json`)
 
@@ -131,8 +102,8 @@ The server speaks MCP over **stdio**. Run it with `node dist/index.js` (or `npm 
 {
   "mcpServers": {
     "godaddy": {
-      "command": "node",
-      "args": ["/absolute/path/to/godaddy-mcp/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "github:hofmeister/godaddy-mcp"],
       "env": {
         "GODADDY_PAT": "your-personal-access-token"
       }
@@ -148,7 +119,7 @@ The server speaks MCP over **stdio**. Run it with `node dist/index.js` (or `npm 
   "mcp": {
     "godaddy": {
       "type": "local",
-      "command": ["node", "/absolute/path/to/godaddy-mcp/dist/index.js"],
+      "command": ["npx", "-y", "github:hofmeister/godaddy-mcp"],
       "enabled": true,
       "environment": {
         "GODADDY_PAT": "your-personal-access-token"
@@ -164,13 +135,15 @@ The server speaks MCP over **stdio**. Run it with `node dist/index.js` (or `npm 
 {
   "mcpServers": {
     "godaddy": {
-      "command": "node",
-      "args": ["/absolute/path/to/godaddy-mcp/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "github:hofmeister/godaddy-mcp"],
       "env": { "GODADDY_PAT": "your-personal-access-token" }
     }
   }
 }
 ```
+
+> **PATH note:** desktop apps inherit a minimal PATH. If the client cannot find `npx` (e.g. Node is managed by nvm), use its absolute path as `command` (such as `/opt/homebrew/bin/npx`) — or fall back to `node` with the absolute path to `dist/index.js` from a [source install](#alternatives).
 
 > **Security note:** the PAT grants programmatic control of your domains. Store it in the MCP client's env config (or a secrets manager), never in files that get committed.
 
