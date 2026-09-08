@@ -1,0 +1,50 @@
+{
+  "name": "@hofmeister/godaddy-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for the GoDaddy Domains API: list domains, DNS management, availability search, and registration",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hofmeister/godaddy-mcp.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "godaddy",
+    "domains",
+    "dns",
+    "domain-registration"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "godaddy-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x dist/index.js",
+    "prepare": "npm run build",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "smoke": "tsx scripts/smoke.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "tsx": "^4.23.13",
+    "typescript": "5.9",
+    "vitest": "^5.0.0"
+  }
+}
