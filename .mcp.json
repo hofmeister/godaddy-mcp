@@ -2,10 +2,13 @@
   "mcpServers": {
     "godaddy": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/src/index.ts"],
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/src/index.ts"
+      ],
       "env": {
         "GODADDY_PAT": "${user_config.godaddy_pat}",
-        "GODADDY_API_BASE_URL": "${user_config.api_base_url}"
+        "GODADDY_API_BASE_URL": "${user_config.api_base_url}",
+        "GODADDY_ENABLE_PURCHASES": "0"
       }
     }
   }

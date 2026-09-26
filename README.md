@@ -1,8 +1,8 @@
 # GoDaddy Account Management for Claude
 
-Manage the domains in your own GoDaddy account from a conversation with Claude: list your domains, add or change DNS records, check which names are free, and register, renew or re-point domains. It is a Claude plugin that runs a local Model Context Protocol (MCP) server for the [GoDaddy Domains API](https://developer.godaddy.com), and the same server works with Claude Desktop, opencode, Cursor, or any other MCP client.
+Manage the domains in your own GoDaddy account from a conversation with Claude: list your domains, add or change DNS records, check which names are free and what they cost, and re-point domains. It is a Claude plugin that runs a local Model Context Protocol (MCP) server for the [GoDaddy Domains API](https://developer.godaddy.com), and the same server works with Claude Desktop, opencode, Cursor, or any other MCP client.
 
-This is a community project. It is not made, endorsed or supported by GoDaddy. Unlike GoDaddy's own connector in the Claude directory, it works with **full access to your account** through your Personal Access Token: it can change DNS, re-point nameservers, and register or renew domains on your billing method. Grant the token only the scopes you want Claude to have (see [How to get a GoDaddy PAT](#how-to-get-a-godaddy-pat)).
+This is a community project. It is not made, endorsed or supported by GoDaddy. Unlike GoDaddy's own connector in the Claude directory, it works with **full access to your account** through your Personal Access Token: it can change and delete DNS records and re-point nameservers. Grant the token only the scopes you want Claude to have (see [How to get a GoDaddy PAT](#how-to-get-a-godaddy-pat)).
 
 ## Use it with Claude
 
@@ -11,8 +11,11 @@ Once installed, ask for what you want in plain language:
 - "Which of my domains expire in the next three months?"
 - "Point `www.example.com` at `203.0.113.10` and add an SPF record for Google Workspace."
 - "Is `bakery-copenhagen.com` available, and what would it cost for two years?"
+- "Move `example.org` to Cloudflare's nameservers `ada.ns.cloudflare.com` and `bob.ns.cloudflare.com`."
 
-Claude reads before it writes, and anything that costs money (`register_domain`, `renew_domain`) or cannot be undone (`delete_dns_record`, `set_nameservers`) is marked destructive, so Claude asks you before it runs it.
+Claude reads before it writes, and anything that cannot be undone (`delete_dns_record`, `update_dns_record`, `set_nameservers`) is marked destructive, so Claude asks you before it runs it.
+
+**The plugin never spends money.** Buying and renewing domains stay on godaddy.com: Claude can check availability and get a price quote, and you complete the purchase there. The server has `register_domain` and `renew_domain` tools for other MCP clients, but they exist only when `GODADDY_ENABLE_PURCHASES=1` is set, and the plugin always starts the server with it off (Anthropic's directory does not list software that executes financial transactions).
 
 ### Install the plugin in Claude Code
 
@@ -36,7 +39,7 @@ The server is also published to [GitHub Packages](https://github.com/hofmeister/
 | --- | --- |
 | `list_domains` | List domains owned by the account (status, expiration, auto-renew, privacy, transfer lock). Filters by status, lifecycle group, expiration date, and update time, with cursor pagination. |
 | `get_domain` | Full detail for one domain, including `expiresAt`, `renewBy`, and `autoRenew`. |
-| `renew_domain` | Renew a domain for 1–10 years (v1 API). **Charges the account.** |
+| `renew_domain` | Renew a domain for 1–10 years (v1 API). **Charges the account.** Only with `GODADDY_ENABLE_PURCHASES=1`; never in the plugin. |
 | `list_dns_records` | DNS records for a zone, filterable by type and name; returns the `recordId` each record needs for updates/deletes. |
 | `add_dns_record` | Add an A/AAAA/CNAME/MX/TXT/NS/SRV/CAA record. |
 | `update_dns_record` | Fully replace a record by `recordId`. |
@@ -44,10 +47,10 @@ The server is also published to [GitHub Packages](https://github.com/hofmeister/
 | `check_domain_availability` | Availability + per-term pricing for one or many domains (cached `SPEED` or live-registry `ACCURACY` checks). |
 | `suggest_domains` | Available-name suggestions from a keyword query. |
 | `get_registration_quote` | Lock a registration price (`quoteToken`) and return the required ICANN agreements. Read-only, no charge. |
-| `register_domain` | Execute a quote with consent. **Charges the account.** Polls until the registration completes. |
+| `register_domain` | Execute a quote with consent. **Charges the account.** Polls until the registration completes. Only with `GODADDY_ENABLE_PURCHASES=1`; never in the plugin. |
 | `set_nameservers` | Replace the authoritative nameservers (2–13). Polls the registry operation. |
 
-Registration is deliberately two-step: `get_registration_quote` returns the price and the legal agreements to review, and `register_domain` only runs with the `quoteToken` and accepted `agreementTypes` from that quote.
+When purchases are enabled, registration is deliberately two-step: `get_registration_quote` returns the price and the legal agreements to review, and `register_domain` only runs with the `quoteToken` and accepted `agreementTypes` from that quote.
 
 ## Prerequisites
 
@@ -108,6 +111,7 @@ Environment variables:
 | --- | --- | --- |
 | `GODADDY_PAT` | yes | GoDaddy Personal Access Token (Bearer). |
 | `GODADDY_API_BASE_URL` | no | API base URL override (default `https://api.godaddy.com`). Useful for testing. |
+| `GODADDY_ENABLE_PURCHASES` | no | `1` exposes `register_domain` and `renew_domain`, which charge the account. Off by default, and always off in the Claude plugin. |
 
 If `GODADDY_PAT` is missing, the server still starts; tool calls return a clear error telling you to set it.
 
@@ -179,7 +183,7 @@ The server speaks MCP over **stdio**; each client launches it with `npx -y githu
 
 This plugin runs entirely on your computer. It has no server of its own, collects no analytics or telemetry, and sends nothing to its author or to Anthropic.
 
-- **What it sends, and where:** each tool call makes HTTPS requests to the GoDaddy API you chose (`api.godaddy.com`, or `api.ote-godaddy.com` for OTE), authenticated with your Personal Access Token. Requests contain only what the tool needs: domain names, DNS records you ask to create or change, search keywords, and — for registrations — the quote token and the agreements you accepted. Registrant contact details come from your GoDaddy account profile on GoDaddy's side; the plugin does not send them.
+- **What it sends, and where:** each tool call makes HTTPS requests to the GoDaddy API you chose (`api.godaddy.com`, or `api.ote-godaddy.com` for OTE), authenticated with your Personal Access Token. Requests contain only what the tool needs: domain names, DNS records you ask to create or change, search keywords, and — for registrations, which only exist outside the plugin with `GODADDY_ENABLE_PURCHASES=1` — the quote token and the agreements you accepted. Registrant contact details come from your GoDaddy account profile on GoDaddy's side; the plugin does not send them.
 - **What it stores:** nothing. The token is kept by Claude Code in your system's secure credential store (or by your MCP client's configuration) and is held only in the server's memory while it runs. The server writes no files, caches or logs.
 - **Third parties:** GoDaddy receives the requests above and handles them under the [GoDaddy privacy policy](https://www.godaddy.com/legal/agreements/privacy-policy). Tool results go back to Claude as part of your conversation, where Anthropic's policies apply. Nothing is shared with anyone else.
 - **Retention:** the plugin retains nothing after the server stops. GoDaddy retains account and domain data under its own policy.

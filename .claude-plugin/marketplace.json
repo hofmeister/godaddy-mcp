@@ -11,7 +11,7 @@
     {
       "name": "godaddy-account-management",
       "source": "./",
-      "description": "Full GoDaddy account management for Claude: domains, DNS records, availability, registration and renewal."
+      "description": "Full GoDaddy account management for Claude: domains, DNS records, nameservers, availability and price quotes."
     }
   ]
 }

@@ -25,6 +25,15 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): GodaddyConfig 
   return { pat, baseUrl };
 }
 
+/**
+ * Whether the tools that charge the account (register_domain, renew_domain) are exposed. Off unless
+ * GODADDY_ENABLE_PURCHASES is "1" or "true": the Claude plugin leaves them out, because the
+ * directory does not list software that executes financial transactions.
+ */
+export function purchasesEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return /^(1|true|yes)$/i.test(env.GODADDY_ENABLE_PURCHASES?.trim() ?? "");
+}
+
 let cached: GodaddyConfig | undefined;
 
 export function getConfig(): GodaddyConfig {

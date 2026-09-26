@@ -276,30 +276,33 @@ export const setNameserversSchema = {
     ),
 };
 
-export function registerRegistrationTools(server: McpServer): void {
+export function registerRegistrationTools(server: McpServer, options: { purchases: boolean }): void {
   server.registerTool(
     "get_registration_quote",
     {
       title: "Get registration quote",
-      description:
-        "Get a price quote for registering a domain. This locks the price to a quoteToken for a short window and returns the required ICANN agreements that must be reviewed before registering. Read-only and does NOT charge the account. Step 1 of 2 of registration; step 2 is register_domain.",
+      description: options.purchases
+        ? "Get a price quote for registering a domain. This locks the price to a quoteToken for a short window and returns the required ICANN agreements that must be reviewed before registering. Read-only and does NOT charge the account. Step 1 of 2 of registration; step 2 is register_domain."
+        : "Get a price quote for registering a domain, with the ICANN agreements that apply. Read-only and does NOT charge the account. This server cannot buy domains: to register, the user completes the purchase at godaddy.com.",
       inputSchema: getRegistrationQuoteSchema,
       annotations: { readOnlyHint: true, openWorldHint: true },
     },
     withTool(runGetRegistrationQuote),
   );
 
-  server.registerTool(
-    "register_domain",
-    {
-      title: "Register domain",
-      description:
-        "Register a domain using a quote from get_registration_quote. CHARGES THE ACCOUNT's billing method and is not reversible — only call it after the user has explicitly confirmed the price and agreed to the listed agreements. Requires a payment method and registrant contact on the account. The call is accepted asynchronously and this tool waits for it to finish (up to ~90s).",
-      inputSchema: registerDomainSchema,
-      annotations: { destructiveHint: true, idempotentHint: true, openWorldHint: true },
-    },
-    withTool(runRegisterDomain),
-  );
+  if (options.purchases) {
+    server.registerTool(
+      "register_domain",
+      {
+        title: "Register domain",
+        description:
+          "Register a domain using a quote from get_registration_quote. CHARGES THE ACCOUNT's billing method and is not reversible — only call it after the user has explicitly confirmed the price and agreed to the listed agreements. Requires a payment method and registrant contact on the account. The call is accepted asynchronously and this tool waits for it to finish (up to ~90s).",
+        inputSchema: registerDomainSchema,
+        annotations: { destructiveHint: true, idempotentHint: true, openWorldHint: true },
+      },
+      withTool(runRegisterDomain),
+    );
+  }
 
   server.registerTool(
     "set_nameservers",

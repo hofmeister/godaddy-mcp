@@ -3,7 +3,7 @@
   "name": "godaddy-account-management",
   "displayName": "GoDaddy Account Management",
   "version": "0.1.0",
-  "description": "Full access to your own GoDaddy account from Claude, using your Personal Access Token: list and inspect domains, add, change and delete DNS records, check availability, and register, renew or re-point domains (actions that can charge your account). Community project, not affiliated with GoDaddy.",
+  "description": "Full access to your own GoDaddy account from Claude, using your Personal Access Token: list and inspect domains, add, change and delete DNS records, re-point nameservers, check availability and get registration price quotes. It never buys or renews anything: purchases stay on godaddy.com. Community project, not affiliated with GoDaddy.",
   "author": {
     "name": "Henrik Hofmeister",
     "url": "https://github.com/hofmeister"

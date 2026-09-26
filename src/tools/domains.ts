@@ -164,7 +164,7 @@ export const renewDomainSchema = {
     .describe("Years to renew (default 1). Charges the account's billing method."),
 };
 
-export function registerDomainTools(server: McpServer): void {
+export function registerDomainTools(server: McpServer, options: { purchases: boolean }): void {
   server.registerTool(
     "list_domains",
     {
@@ -188,6 +188,8 @@ export function registerDomainTools(server: McpServer): void {
     },
     withTool(runGetDomain),
   );
+
+  if (!options.purchases) return;
 
   server.registerTool(
     "renew_domain",
