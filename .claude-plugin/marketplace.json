@@ -1,5 +1,5 @@
 {
-  "name": "godaddy-mcp",
+  "name": "godaddy-account-management",
   "owner": {
     "name": "Henrik Hofmeister",
     "url": "https://github.com/hofmeister"
@@ -9,9 +9,9 @@
   },
   "plugins": [
     {
-      "name": "godaddy-mcp",
+      "name": "godaddy-account-management",
       "source": "./",
-      "description": "Manage the domains in your own GoDaddy account from Claude: DNS records, availability, registration and renewal."
+      "description": "Full GoDaddy account management for Claude: domains, DNS records, availability, registration and renewal."
     }
   ]
 }

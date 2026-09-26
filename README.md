@@ -1,8 +1,8 @@
-# GoDaddy Domains for Claude
+# GoDaddy Account Management for Claude
 
 Manage the domains in your own GoDaddy account from a conversation with Claude: list your domains, add or change DNS records, check which names are free, and register, renew or re-point domains. It is a Claude plugin that runs a local Model Context Protocol (MCP) server for the [GoDaddy Domains API](https://developer.godaddy.com), and the same server works with Claude Desktop, opencode, Cursor, or any other MCP client.
 
-This is a community project. It is not made, endorsed or supported by GoDaddy.
+This is a community project. It is not made, endorsed or supported by GoDaddy. Unlike GoDaddy's own connector in the Claude directory, it works with **full access to your account** through your Personal Access Token: it can change DNS, re-point nameservers, and register or renew domains on your billing method. Grant the token only the scopes you want Claude to have (see [How to get a GoDaddy PAT](#how-to-get-a-godaddy-pat)).
 
 ## Use it with Claude
 
@@ -18,13 +18,13 @@ Claude reads before it writes, and anything that costs money (`register_domain`,
 
 ```bash
 claude plugin marketplace add hofmeister/godaddy-mcp
-claude plugin install godaddy-mcp@godaddy-mcp
+claude plugin install godaddy-account-management@godaddy-account-management
 ```
 
 Claude Code asks for two settings when the plugin is enabled:
 
 - **GoDaddy Personal Access Token** (required, stored in your system's secure credential store) — see [How to get a GoDaddy PAT](#how-to-get-a-godaddy-pat).
-- **GoDaddy API** — the production API (default) or GoDaddy's OTE test environment.
+- **GoDaddy API base URL** — `https://api.godaddy.com` (default) or `https://api.ote-godaddy.com` for GoDaddy's OTE test environment.
 
 The plugin starts the server with your own `node` (22.18 or newer) straight from the TypeScript source in this repository; Claude Code installs its two runtime dependencies from `package-lock.json` when you install the plugin. Nothing is built or downloaded at start-up.
 
@@ -68,7 +68,7 @@ Registration is deliberately two-step: `get_registration_quote` returns the pric
    | `domains.domain:create` | `get_registration_quote`, `register_domain` |
    | `domains.nameserver:update` | `set_nameservers` |
 
-   Granting all four is fine — the server only calls what you ask it to.
+   Grant only the scopes for what you want Claude to be able to do: tools outside the token's scopes fail with GoDaddy's `403` error and change nothing.
 4. Create the token and **copy it immediately** — GoDaddy shows it only once.
 5. Put it somewhere safe. It is a secret, like a password: it gives whoever holds it programmatic control of your domains.
 
