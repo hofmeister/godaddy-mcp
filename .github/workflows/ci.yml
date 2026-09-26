@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A newer push makes an in-flight run for the same ref pointless.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        # The release line that holds the engines floor (22.18), and current LTS.
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Unit tests
+        run: npm test
+      - name: Build
+        run: npm run build
+      # The Claude plugin runs src/index.ts directly with Node's type stripping, and
+      # leaves the purchase tools out; check both from a real MCP handshake.
+      - name: Start from source as the plugin does
+        run: |
+          set -euo pipefail
+          tools=$(printf '%s\n' \
+            '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"1"}}}' \
+            '{"jsonrpc":"2.0","method":"notifications/initialized"}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' \
+            | GODADDY_PAT=ci GODADDY_ENABLE_PURCHASES=0 timeout 20 node src/index.ts \
+            | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const r=s.trim().split("\n").map(JSON.parse).find(m=>m.id===2);console.log(r.result.tools.map(t=>t.name).join(" "))})')
+          echo "tools: $tools"
+          echo "$tools" | grep -qw list_domains
+          if echo "$tools" | grep -qwE 'register_domain|renew_domain'; then
+            echo "purchase tools must not be registered in plugin mode"; exit 1
+          fi
+
+  bundle:
+    name: Claude Desktop extension
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Build the .mcpb
+        run: npm run bundle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: claude-desktop-extension
+          path: bundles/*.mcpb
+          if-no-files-found: error

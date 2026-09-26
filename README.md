@@ -208,6 +208,8 @@ npm run smoke      # read-only live API check (needs GODADDY_PAT)
 npm run bundle     # build the Claude Desktop extension into bundles/ (after npm run build)
 ```
 
+CI (`.github/workflows/ci.yml`) runs the typecheck, unit tests, build and a start of the server from source on Node 22 and 24 for every push to `master` and every pull request, and builds the Claude Desktop extension as a downloadable artifact.
+
 To try your working copy as a Claude plugin, run `claude --plugin-dir .` from the repository root, and `claude plugin validate .` before you push.
 
 ## Releasing
