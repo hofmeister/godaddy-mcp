@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { okResult, errResult, withTool } from "../src/handler.js";
-import { GodaddyApiError } from "../src/client.js";
-import { ConfigError } from "../src/config.js";
+import { okResult, errResult, withTool } from "../src/handler.ts";
+import { GodaddyApiError } from "../src/client.ts";
+import { ConfigError } from "../src/config.ts";
 
 describe("okResult", () => {
   it("serializes objects and prepends the summary", () => {

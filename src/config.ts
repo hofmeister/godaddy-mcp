@@ -21,7 +21,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): GodaddyConfig 
       "GODADDY_PAT is not set. Create a Personal Access Token at https://developer.godaddy.com/personal-access-token (scopes: domains.domain:read, domains.dns:update, domains.domain:create) and set the GODADDY_PAT environment variable before starting this server.",
     );
   }
-  const baseUrl = (env.GODADDY_API_BASE_URL ?? DEFAULT_BASE_URL).trim().replace(/\/+$/, "");
+  const baseUrl = (env.GODADDY_API_BASE_URL?.trim() || DEFAULT_BASE_URL).replace(/\/+$/, "");
   return { pat, baseUrl };
 }
 

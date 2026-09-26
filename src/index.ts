@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { registerDomainTools } from "./tools/domains.js";
-import { registerDnsTools } from "./tools/dns.js";
-import { registerSearchTools } from "./tools/search.js";
-import { registerRegistrationTools } from "./tools/register.js";
+import { registerDomainTools } from "./tools/domains.ts";
+import { registerDnsTools } from "./tools/dns.ts";
+import { registerSearchTools } from "./tools/search.ts";
+import { registerRegistrationTools } from "./tools/register.ts";
 
 const server = new McpServer({
   name: "godaddy-domains",

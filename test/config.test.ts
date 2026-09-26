@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { loadConfig, getConfig, resetConfig, ConfigError } from "../src/config.js";
+import { loadConfig, getConfig, resetConfig, ConfigError } from "../src/config.ts";
 
 describe("loadConfig", () => {
   it("throws ConfigError when GODADDY_PAT is missing", () => {
