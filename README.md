@@ -225,7 +225,7 @@ All GoDaddy API errors are surfaced to the LLM with the HTTP status, the GoDaddy
 
 ## Support
 
-Report bugs and ask questions at [github.com/hofmeister/godaddy-mcp/issues](https://github.com/hofmeister/godaddy-mcp/issues).
+Report bugs and ask questions at [github.com/hofmeister/godaddy-mcp/issues](https://github.com/hofmeister/godaddy-mcp/issues). Report security vulnerabilities privately, as described in [SECURITY.md](SECURITY.md).
 
 ## License
 

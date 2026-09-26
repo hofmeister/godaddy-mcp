@@ -11,6 +11,8 @@
   "homepage": "https://github.com/hofmeister/godaddy-mcp#readme",
   "repository": "https://github.com/hofmeister/godaddy-mcp",
   "license": "MIT",
+  "privacyPolicyUrl": "https://github.com/hofmeister/godaddy-mcp#privacy",
+  "supportUrl": "https://github.com/hofmeister/godaddy-mcp/issues",
   "keywords": [
     "godaddy",
     "domains",
