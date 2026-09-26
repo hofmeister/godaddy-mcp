@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { buildUrl, godaddyRequest, GodaddyApiError } from "../src/client.js";
-import type { GodaddyConfig } from "../src/config.js";
-import { mockFetch, resultJson, resultSummary } from "./helpers.js";
+import { buildUrl, godaddyRequest, GodaddyApiError } from "../src/client.ts";
+import type { GodaddyConfig } from "../src/config.ts";
+import { mockFetch, resultJson, resultSummary } from "./helpers.ts";
 
 const config: GodaddyConfig = { pat: "test-pat", baseUrl: "https://api.test.com" };
 

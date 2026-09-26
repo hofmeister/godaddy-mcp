@@ -1,8 +1,34 @@
-# @hofmeister/godaddy-mcp
+# GoDaddy Domains for Claude
 
-Model Context Protocol (MCP) server for the [GoDaddy Domains API](https://developer.godaddy.com). Exposes domain listing, DNS management, availability search, and domain registration as MCP tools — for use with Claude Desktop, opencode, Cursor, or any other MCP client.
+Manage the domains in your own GoDaddy account from a conversation with Claude: list your domains, add or change DNS records, check which names are free, and register, renew or re-point domains. It is a Claude plugin that runs a local Model Context Protocol (MCP) server for the [GoDaddy Domains API](https://developer.godaddy.com), and the same server works with Claude Desktop, opencode, Cursor, or any other MCP client.
 
-Published to [GitHub Packages](https://github.com/hofmeister/godaddy-mcp/packages).
+This is a community project. It is not made, endorsed or supported by GoDaddy.
+
+## Use it with Claude
+
+Once installed, ask for what you want in plain language:
+
+- "Which of my domains expire in the next three months?"
+- "Point `www.example.com` at `203.0.113.10` and add an SPF record for Google Workspace."
+- "Is `bakery-copenhagen.com` available, and what would it cost for two years?"
+
+Claude reads before it writes, and anything that costs money (`register_domain`, `renew_domain`) or cannot be undone (`delete_dns_record`, `set_nameservers`) is marked destructive, so Claude asks you before it runs it.
+
+### Install the plugin in Claude Code
+
+```bash
+claude plugin marketplace add hofmeister/godaddy-mcp
+claude plugin install godaddy-mcp@godaddy-mcp
+```
+
+Claude Code asks for two settings when the plugin is enabled:
+
+- **GoDaddy Personal Access Token** (required, stored in your system's secure credential store) — see [How to get a GoDaddy PAT](#how-to-get-a-godaddy-pat).
+- **GoDaddy API** — the production API (default) or GoDaddy's OTE test environment.
+
+The plugin starts the server with your own `node` (22.18 or newer) straight from the TypeScript source in this repository; Claude Code installs its two runtime dependencies from `package-lock.json` when you install the plugin. Nothing is built or downloaded at start-up.
+
+The server is also published to [GitHub Packages](https://github.com/hofmeister/godaddy-mcp/packages) for other MCP clients; see [Installation](#installation).
 
 ## Features
 
@@ -25,7 +51,7 @@ Registration is deliberately two-step: `get_registration_quote` returns the pric
 
 ## Prerequisites
 
-- **Node.js 20+**
+- **Node.js 22.18+** (it runs the TypeScript source directly)
 - A GoDaddy account (read operations work on any account; registration/renewal additionally need a **payment method on file** and a complete **registrant contact**)
 - A **Personal Access Token (PAT)** — see below
 
@@ -51,6 +77,8 @@ Registration is deliberately two-step: `get_registration_quote` returns the pric
 > **Legacy API key/secret (sso-key) pairs are not supported.** They are deprecated, cannot access the v3 registration/availability APIs, and the API will drop them.
 
 ## Installation
+
+This section is for MCP clients other than the Claude plugin above.
 
 The repository is public, so **no GitHub tokens are needed** — npx clones, builds, and runs the server for you:
 
@@ -147,21 +175,33 @@ The server speaks MCP over **stdio**; each client launches it with `npx -y githu
 
 > **Security note:** the PAT grants programmatic control of your domains. Store it in the MCP client's env config (or a secrets manager), never in files that get committed.
 
+## Privacy
+
+This plugin runs entirely on your computer. It has no server of its own, collects no analytics or telemetry, and sends nothing to its author or to Anthropic.
+
+- **What it sends, and where:** each tool call makes HTTPS requests to the GoDaddy API you chose (`api.godaddy.com`, or `api.ote-godaddy.com` for OTE), authenticated with your Personal Access Token. Requests contain only what the tool needs: domain names, DNS records you ask to create or change, search keywords, and — for registrations — the quote token and the agreements you accepted. Registrant contact details come from your GoDaddy account profile on GoDaddy's side; the plugin does not send them.
+- **What it stores:** nothing. The token is kept by Claude Code in your system's secure credential store (or by your MCP client's configuration) and is held only in the server's memory while it runs. The server writes no files, caches or logs.
+- **Third parties:** GoDaddy receives the requests above and handles them under the [GoDaddy privacy policy](https://www.godaddy.com/legal/agreements/privacy-policy). Tool results go back to Claude as part of your conversation, where Anthropic's policies apply. Nothing is shared with anyone else.
+- **Retention:** the plugin retains nothing after the server stops. GoDaddy retains account and domain data under its own policy.
+- **Contact:** open an issue at [github.com/hofmeister/godaddy-mcp/issues](https://github.com/hofmeister/godaddy-mcp/issues) for questions about privacy or security.
+
 ## Development
 
 ```bash
 npm install        # dependencies
 npm run build      # compile to dist/
 npm test           # vitest unit tests (mocked API, no credentials needed)
-npm run dev        # run the server from source via tsx
+npm run dev        # run the server from source (Node's built-in TypeScript support)
 npm run smoke      # read-only live API check (needs GODADDY_PAT)
 ```
+
+To try your working copy as a Claude plugin, run `claude --plugin-dir .` from the repository root, and `claude plugin validate .` before you push.
 
 ## Releasing
 
 Releases are cut by the **Release** workflow (`.github/workflows/release.yml`), which publishes to GitHub Packages and cuts a GitHub Release in one go.
 
-**Triggering a release:** run the *Release* workflow from the Actions tab and pick `patch`, `minor`, or `major`. It works off `master`: the tests run first, then the new version is written to `package.json`, committed and tagged (`vX.Y.Z`), and the package is published from that commit. The version counts up from the newest `vX.Y.Z` tag; with no tags yet, the version already in `package.json` is released as it stands and the choice is ignored.
+**Triggering a release:** run the *Release* workflow from the Actions tab and pick `patch`, `minor`, or `major`. It works off `master`: the tests run first, then the new version is written to `package.json` and `.claude-plugin/plugin.json`, committed and tagged (`vX.Y.Z`), and the package is published from that commit. The version counts up from the newest `vX.Y.Z` tag; with no tags yet, the version already in `package.json` is released as it stands and the choice is ignored.
 
 Pushing a tag `vX.Y.Z` that matches the version in `package.json` also releases the commit the tag points at.
 
@@ -182,6 +222,14 @@ All GoDaddy API errors are surfaced to the LLM with the HTTP status, the GoDaddy
 - `register_domain` waits up to ~90s for the async registration to reach a terminal state; if it's still executing it reports `EXECUTING` — verify later with `get_domain`.
 - GoDaddy rate limits API calls per credential (60 requests/minute); avoid hammering the API from tools.
 - The legacy key/secret (`sso-key`) credentials are not supported: they are deprecated and cannot access the v3 registration/availability APIs.
+
+## Support
+
+Report bugs and ask questions at [github.com/hofmeister/godaddy-mcp/issues](https://github.com/hofmeister/godaddy-mcp/issues).
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 
 ---
 

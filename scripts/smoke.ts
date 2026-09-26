@@ -6,10 +6,10 @@
  *
  *   GODADDY_PAT=... npm run smoke
  */
-import { getConfig } from "../src/config.js";
-import { godaddyRequest, type Paged } from "../src/client.js";
-import { runListDomains, runGetDomain } from "../src/tools/domains.js";
-import { runCheckDomainAvailability } from "../src/tools/search.js";
+import { getConfig } from "../src/config.ts";
+import { godaddyRequest, type Paged } from "../src/client.ts";
+import { runListDomains, runGetDomain } from "../src/tools/domains.ts";
+import { runCheckDomainAvailability } from "../src/tools/search.ts";
 
 function print(label: string, res: { content: Array<{ text?: string }> }): void {
   const text = res.content.map((c) => c.text).filter(Boolean).join("\n");

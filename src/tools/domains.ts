@@ -1,9 +1,9 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { godaddyRequest, type Paged } from "../client.js";
-import { getConfig, type GodaddyConfig } from "../config.js";
-import { okResult, withTool } from "../handler.js";
-import { formatMoney } from "../format.js";
+import { godaddyRequest, type Paged } from "../client.ts";
+import { getConfig, type GodaddyConfig } from "../config.ts";
+import { okResult, withTool } from "../handler.ts";
+import { formatMoney } from "../format.ts";
 
 export const domainName = z
   .string()
@@ -168,6 +168,7 @@ export function registerDomainTools(server: McpServer): void {
   server.registerTool(
     "list_domains",
     {
+      title: "List domains",
       description:
         "List domains owned by the GoDaddy account, with registry status, expiration dates, auto-renew flag, privacy, and transfer lock. Read-only.",
       inputSchema: listDomainsSchema,
@@ -179,6 +180,7 @@ export function registerDomainTools(server: McpServer): void {
   server.registerTool(
     "get_domain",
     {
+      title: "Get domain details",
       description:
         "Get full details for one domain: lifecycle status, expiration (expiresAt and renewBy), auto-renew, WHOIS privacy, transfer lock, and current nameservers. Read-only.",
       inputSchema: getDomainSchema,
@@ -190,6 +192,7 @@ export function registerDomainTools(server: McpServer): void {
   server.registerTool(
     "renew_domain",
     {
+      title: "Renew domain",
       description:
         "Renew a domain for the given number of years (default 1). CHARGES THE ACCOUNT's billing method and cannot be undone. Confirm the domain and period with the user first. The account must have a valid billing method on file.",
       inputSchema: renewDomainSchema,

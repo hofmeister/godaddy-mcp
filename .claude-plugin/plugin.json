@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "godaddy-mcp",
+  "displayName": "GoDaddy Domains",
+  "version": "0.1.0",
+  "description": "Manage the domains in your own GoDaddy account from Claude: list domains, edit DNS records, check availability, and register or renew domains. Community project, not affiliated with GoDaddy.",
+  "author": {
+    "name": "Henrik Hofmeister",
+    "url": "https://github.com/hofmeister"
+  },
+  "homepage": "https://github.com/hofmeister/godaddy-mcp#readme",
+  "repository": "https://github.com/hofmeister/godaddy-mcp",
+  "license": "MIT",
+  "keywords": ["godaddy", "domains", "dns", "domain-registration", "nameservers"],
+  "userConfig": {
+    "godaddy_pat": {
+      "type": "string",
+      "title": "GoDaddy Personal Access Token",
+      "description": "Create one at https://developer.godaddy.com/personal-access-token with the domains.domain:read, domains.dns:update, domains.domain:create and domains.nameserver:update scopes.",
+      "sensitive": true,
+      "required": true
+    },
+    "api_base_url": {
+      "type": "string",
+      "title": "GoDaddy API",
+      "description": "Production API, or GoDaddy's OTE test environment for trying things without real charges.",
+      "options": ["https://api.godaddy.com", "https://api.ote-godaddy.com"],
+      "default": "https://api.godaddy.com"
+    }
+  }
+}

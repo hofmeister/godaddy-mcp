@@ -1,6 +1,6 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { GodaddyApiError } from "./client.js";
-import { ConfigError } from "./config.js";
+import { GodaddyApiError } from "./client.ts";
+import { ConfigError } from "./config.ts";
 
 /** Wrap an unknown tool payload into a successful text result. */
 export function okResult(payload: unknown, summary?: string): CallToolResult {

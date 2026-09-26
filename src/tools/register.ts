@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { godaddyRequest, pollResource } from "../client.js";
-import { getConfig, type GodaddyConfig } from "../config.js";
-import { errResult, okResult, withTool } from "../handler.js";
-import { formatMoney } from "../format.js";
+import { godaddyRequest, pollResource } from "../client.ts";
+import { getConfig, type GodaddyConfig } from "../config.ts";
+import { errResult, okResult, withTool } from "../handler.ts";
+import { formatMoney } from "../format.ts";
 
 interface Agreement {
   agreementType: string;
@@ -280,6 +280,7 @@ export function registerRegistrationTools(server: McpServer): void {
   server.registerTool(
     "get_registration_quote",
     {
+      title: "Get registration quote",
       description:
         "Get a price quote for registering a domain. This locks the price to a quoteToken for a short window and returns the required ICANN agreements that must be reviewed before registering. Read-only and does NOT charge the account. Step 1 of 2 of registration; step 2 is register_domain.",
       inputSchema: getRegistrationQuoteSchema,
@@ -291,6 +292,7 @@ export function registerRegistrationTools(server: McpServer): void {
   server.registerTool(
     "register_domain",
     {
+      title: "Register domain",
       description:
         "Register a domain using a quote from get_registration_quote. CHARGES THE ACCOUNT's billing method and is not reversible — only call it after the user has explicitly confirmed the price and agreed to the listed agreements. Requires a payment method and registrant contact on the account. The call is accepted asynchronously and this tool waits for it to finish (up to ~90s).",
       inputSchema: registerDomainSchema,
@@ -302,6 +304,7 @@ export function registerRegistrationTools(server: McpServer): void {
   server.registerTool(
     "set_nameservers",
     {
+      title: "Set nameservers",
       description:
         "Replace the authoritative nameservers for a domain (2-13 hostnames). The registry change propagates asynchronously; this tool waits until it completes or reports that it is still in progress. WARNING: switching nameservers moves DNS off GoDaddy, so records managed with the DNS tools will no longer be served by GoDaddy.",
       inputSchema: setNameserversSchema,

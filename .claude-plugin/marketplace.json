@@ -1,0 +1,17 @@
+{
+  "name": "godaddy-mcp",
+  "owner": {
+    "name": "Henrik Hofmeister",
+    "url": "https://github.com/hofmeister"
+  },
+  "metadata": {
+    "description": "GoDaddy domain and DNS management for Claude."
+  },
+  "plugins": [
+    {
+      "name": "godaddy-mcp",
+      "source": "./",
+      "description": "Manage the domains in your own GoDaddy account from Claude: DNS records, availability, registration and renewal."
+    }
+  ]
+}

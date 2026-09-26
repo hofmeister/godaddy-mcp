@@ -13,7 +13,11 @@
     "sourceMap": false,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

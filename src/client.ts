@@ -1,4 +1,4 @@
-import type { GodaddyConfig } from "./config.js";
+import type { GodaddyConfig } from "./config.ts";
 
 export interface ApiFieldError {
   name?: string;

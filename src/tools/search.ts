@@ -1,9 +1,9 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { godaddyRequest } from "../client.js";
-import { getConfig, type GodaddyConfig } from "../config.js";
-import { okResult, withTool } from "../handler.js";
-import { formatTermPrices, type TermPriceInput } from "../format.js";
+import { godaddyRequest } from "../client.ts";
+import { getConfig, type GodaddyConfig } from "../config.ts";
+import { okResult, withTool } from "../handler.ts";
+import { formatTermPrices, type TermPriceInput } from "../format.ts";
 
 const domainList = z
   .array(z.string().min(2).max(255))
@@ -149,6 +149,7 @@ export function registerSearchTools(server: McpServer): void {
   server.registerTool(
     "check_domain_availability",
     {
+      title: "Check domain availability",
       description:
         "Check whether one or more domains are available for registration, with indicative per-term pricing (registration and renewal prices, converted from cents to whole currency units). Read-only; no payment method required. Use ACCURACY for a live registry check.",
       inputSchema: checkAvailabilitySchema,
@@ -160,6 +161,7 @@ export function registerSearchTools(server: McpServer): void {
   server.registerTool(
     "suggest_domains",
     {
+      title: "Suggest domain names",
       description:
         "Get available domain name suggestions for a keyword or natural-language query, with indicative pricing. Read-only.",
       inputSchema: suggestDomainsSchema,

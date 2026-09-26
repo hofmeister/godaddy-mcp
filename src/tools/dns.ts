@@ -1,8 +1,8 @@
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { godaddyRequest, type Paged } from "../client.js";
-import { getConfig, type GodaddyConfig } from "../config.js";
-import { okResult, withTool } from "../handler.js";
+import { godaddyRequest, type Paged } from "../client.ts";
+import { getConfig, type GodaddyConfig } from "../config.ts";
+import { okResult, withTool } from "../handler.ts";
 
 export const DNS_RECORD_TYPES = [
   "A",
@@ -276,6 +276,7 @@ export function registerDnsTools(server: McpServer): void {
   server.registerTool(
     "list_dns_records",
     {
+      title: "List DNS records",
       description:
         "List DNS records for a domain hosted on GoDaddy's authoritative nameservers. Filter by type and/or name (@ = zone apex). Records include the recordId needed to update or delete them. Read-only.",
       inputSchema: listDnsRecordsSchema,
@@ -287,6 +288,7 @@ export function registerDnsTools(server: McpServer): void {
   server.registerTool(
     "add_dns_record",
     {
+      title: "Add DNS record",
       description:
         "Add a DNS record to a domain's zone without touching existing records. Record name is relative to the zone apex (@ = bare domain, www = www.example.com, * = wildcard). TTL 600-86400 seconds. MX and SRV require priority (SRV also port and weight); CNAME cannot be set at the apex; SOA and the apex NS set are managed by GoDaddy. The record is created synchronously and the response includes its recordId.",
       inputSchema: addDnsRecordSchema,
@@ -298,6 +300,7 @@ export function registerDnsTools(server: McpServer): void {
   server.registerTool(
     "update_dns_record",
     {
+      title: "Replace DNS record",
       description:
         "Replace an existing DNS record (identified by recordId from list_dns_records). This is a FULL replacement: name, type, data, and ttl must all be supplied; omitted fields are not preserved. GoDaddy-managed SOA and apex NS records cannot be replaced.",
       inputSchema: updateDnsRecordSchema,
@@ -309,6 +312,7 @@ export function registerDnsTools(server: McpServer): void {
   server.registerTool(
     "delete_dns_record",
     {
+      title: "Delete DNS record",
       description:
         "Permanently delete one DNS record (identified by recordId from list_dns_records). Irreversible — verify the record first. GoDaddy-managed SOA and apex NS records cannot be deleted.",
       inputSchema: deleteDnsRecordSchema,

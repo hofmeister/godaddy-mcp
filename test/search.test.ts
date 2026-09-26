@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   runCheckDomainAvailability,
   runSuggestDomains,
-} from "../src/tools/search.js";
-import type { GodaddyConfig } from "../src/config.js";
-import { mockFetch, resultJson, resultSummary } from "./helpers.js";
+} from "../src/tools/search.ts";
+import type { GodaddyConfig } from "../src/config.ts";
+import { mockFetch, resultJson, resultSummary } from "./helpers.ts";
 
 const config: GodaddyConfig = { pat: "test-pat", baseUrl: "https://api.test.com" };
 
