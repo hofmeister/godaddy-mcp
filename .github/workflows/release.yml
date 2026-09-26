@@ -112,12 +112,18 @@ jobs:
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build the Claude Desktop extension
+        run: npm run bundle
       - name: Release notes
         run: |
           cat > notes.md <<'EOF'
           ## Install
 
-          Published to GitHub Packages as `@hofmeister/godaddy-mcp`:
+          **Claude Desktop:** download `godaddy-mcp-${{ needs.check.outputs.version }}.mcpb` below and double-click it. Claude Desktop asks for your GoDaddy Personal Access Token.
+
+          **Claude Code:** `claude plugin marketplace add hofmeister/godaddy-mcp`, then `claude plugin install godaddy-account-management@godaddy-account-management`.
+
+          **Other MCP clients:** published to GitHub Packages as `@hofmeister/godaddy-mcp`:
 
           ```
           npm install @hofmeister/godaddy-mcp --registry https://npm.pkg.github.com
@@ -131,3 +137,4 @@ jobs:
           name: ${{ needs.check.outputs.tag }}
           body_path: notes.md
           generate_release_notes: true
+          files: bundles/*.mcpb

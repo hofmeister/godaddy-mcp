@@ -17,6 +17,14 @@ Claude reads before it writes, and anything that cannot be undone (`delete_dns_r
 
 **The plugin never spends money.** Buying and renewing domains stay on godaddy.com: Claude can check availability and get a price quote, and you complete the purchase there. The server has `register_domain` and `renew_domain` tools for other MCP clients, but they exist only when `GODADDY_ENABLE_PURCHASES=1` is set, and the plugin always starts the server with it off (Anthropic's directory does not list software that executes financial transactions).
 
+### Install in Claude Desktop (one click)
+
+1. Go to the [latest release](https://github.com/hofmeister/godaddy-mcp/releases/latest) and download `godaddy-mcp-<version>.mcpb`. The same file works on macOS, Windows and Linux.
+2. Double-click it. Claude Desktop installs the extension and asks for your **GoDaddy Personal Access Token** (see [How to get a GoDaddy PAT](#how-to-get-a-godaddy-pat)), the API to use, and whether to **Allow purchases**.
+3. Start a new chat and ask about your domains.
+
+The extension runs on the Node.js that ships with Claude Desktop, so there is nothing else to install. **Allow purchases** is off by default; turning it on adds `register_domain` and `renew_domain`, which charge your GoDaddy payment method.
+
 ### Install the plugin in Claude Code
 
 ```bash
@@ -31,7 +39,7 @@ Claude Code asks for two settings when the plugin is enabled:
 
 The plugin starts the server with your own `node` (22.18 or newer) straight from the TypeScript source in this repository; Claude Code installs its two runtime dependencies from `package-lock.json` when you install the plugin. Nothing is built or downloaded at start-up.
 
-The server is also published to [GitHub Packages](https://github.com/hofmeister/godaddy-mcp/packages) for other MCP clients; see [Installation](#installation).
+The Claude Desktop extension above is the easiest way to use it in the Claude app's chat, which does not start plugins' local servers. The server is also published to [GitHub Packages](https://github.com/hofmeister/godaddy-mcp/packages) for other MCP clients; see [Installation](#installation).
 
 ## Features
 
@@ -197,6 +205,7 @@ npm run build      # compile to dist/
 npm test           # vitest unit tests (mocked API, no credentials needed)
 npm run dev        # run the server from source (Node's built-in TypeScript support)
 npm run smoke      # read-only live API check (needs GODADDY_PAT)
+npm run bundle     # build the Claude Desktop extension into bundles/ (after npm run build)
 ```
 
 To try your working copy as a Claude plugin, run `claude --plugin-dir .` from the repository root, and `claude plugin validate .` before you push.
@@ -205,7 +214,7 @@ To try your working copy as a Claude plugin, run `claude --plugin-dir .` from th
 
 Releases are cut by the **Release** workflow (`.github/workflows/release.yml`), which publishes to GitHub Packages and cuts a GitHub Release in one go.
 
-**Triggering a release:** run the *Release* workflow from the Actions tab and pick `patch`, `minor`, or `major`. It works off `master`: the tests run first, then the new version is written to `package.json` and `.claude-plugin/plugin.json`, committed and tagged (`vX.Y.Z`), and the package is published from that commit. The version counts up from the newest `vX.Y.Z` tag; with no tags yet, the version already in `package.json` is released as it stands and the choice is ignored.
+**Triggering a release:** run the *Release* workflow from the Actions tab and pick `patch`, `minor`, or `major`. It works off `master`: the tests run first, then the new version is written to `package.json` and `.claude-plugin/plugin.json`, committed and tagged (`vX.Y.Z`), and the package and the Claude Desktop extension (`.mcpb`, attached to the GitHub Release) are built and published from that commit. The version counts up from the newest `vX.Y.Z` tag; with no tags yet, the version already in `package.json` is released as it stands and the choice is ignored.
 
 Pushing a tag `vX.Y.Z` that matches the version in `package.json` also releases the commit the tag points at.
 
